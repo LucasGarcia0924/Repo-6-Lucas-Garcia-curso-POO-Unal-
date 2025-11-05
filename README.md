@@ -4,6 +4,7 @@ Para el reto # 6 se pedían dos cosas, primero añadir excepciones a los program
 ## Logo del grupo
 ![Logo](https://github.com/NotName-K/POO-R2/blob/main/Screenshot%202025-09-23%20110719.png?raw=true)
 ## Excepciones que fueron utilizadas
+***
 ### División por Cero
 ```python
 class DivisionPorCeroException(Exception):
@@ -16,7 +17,7 @@ class TipoInvalidoException(Exception):
   def __init__(self, message):
     super().__init__(message)
 ```
-Y por supuesto el infaltable **ValueError**.
+Y por supuesto, el infaltable **ValueError**.
 ## Exepciones en el reto #1
 ***
 ### Operador de números
@@ -73,4 +74,42 @@ Este programa crea una lista con palabras ingresadas, las cuales divide en sus c
             palabra_lista.append(i) # Se crea una lista con los caracteres de la palabra
         lista_palabras.append(palabra) # Se crea una lista con las palabras ingresadas
         lis_lis_palabras.append(palabra_lista) # Se crea una lista de listas con los caracteres de cada palabra
+```
+## Exepciones en el paquete Shape
+***
+### Cálculo de pendientes
+En el caso de las Líneas, una de sus propiedades es la pendiente, que indica una relación entre sus coordenadas en "X" y en "Y", esta se calcula con una división de las posiciones finales menos las posiciones iniciales, en el numerador va el eje y, y en el denominador el x, si ambas coordenadas en x son iguales, su resta es igual y cero y se daría una división por cero, así que el programa al notar esto, con el except evita que termine el programa y guarda la pendiente como "infinita".
+```python
+    def compute_slope(self) -> float:
+        while True: # Ciclo para manejar la excepción de división por cero
+            try: # Intentar calcular la pendiente
+                slope = self.__slope = (self.__end.get_y() - self.__start.get_y()) / (self.__end.get_x() - self.__start.get_x())
+                break
+            except ZeroDivisionError: # Si x2 - x1 es cero, se aplica la excepción
+                slope = float("inf") # Se guarda la pendiente como infinito
+                break 
+        return slope # Retorna la pendiente calculada
+```
+### Cálculo de ángulos internos
+En el caso de los triángulos, todos estos tienen ángulos internos que al sumarlos da 180 grados, para hallarlos de forma general sin importar el tipo de triángulo, se utiliza la ley de cosenos, sin embargo depende de la función "Arco Coseno" que funciona en el intervalo [-1,1], sin embargo python al hacer el cálculo puede salirse un poco de este, por lo que en caso de que se de un Value Error, se calculará C como el complemento de A y B, es decir restando 180 menos los ángulos ya mencionados.
+```python
+    def compute_inner_angles(self): # Para todos los triángulos
+        try: # Se intenta calcular los ángulos usando la ley de cosenos
+            A = math.degrees(math.acos((self.__b**2 + self.__c**2 - self.__a**2) / (2 * self.__b * self.__c)))
+            B = math.degrees(math.acos((self.__a**2 + self.__c**2 - self.__b**2) / (2 * self.__a * self.__c)))
+            C = math.degrees(math.acos((self.__a**2 + self.__b**2 - self.__c**2) / (2 * self.__a * self.__b)))  
+            return (A, B, C)
+        except ValueError: # Pero con C se genera un error al obtener un valor fuera del rango {-1, 1}
+            C = 180 - (A + B) # Entonces se calcula C como el complemento de A y B
+            return (A, B, C)
+```
+### Cálculo del cruce de una línea con el eje vertical
+De vuelta a las líneas, se verifica el cruce de estas con los ejes, específicamente para el vertical se utiliza la siguiente fórmula, sin embargo, en esta se divide por la pendiente, pero si la pendiente es zero, se generaría un error, con lo que se agrega una estructura Try-Except, en donde al darse este error se retorna el cruce como infinito y se evita terminar el programa.
+```python
+    def compute_vertical_cross(self) -> float:
+        try: # Intenta calcular el corte vertical
+            Vertcross =self.__start.get_x() - (self.__start.get_y() / self.__slope)
+            return Vertcross
+        except ZeroDivisionError:
+            return float("inf") # Línea vertical
 ```
